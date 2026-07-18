@@ -19,15 +19,59 @@ const SPREADSHEET_ID = '10GI4SN_i-dmzMGmIfd5abhQXc7ujgLt5U8jzANH-pCw';
 const SHEET_NAME = 'info';
 
 /**
- * Serves the HTML file for the web app.
- * @returns {HtmlOutput} The HTML output to be rendered.
+ * Serves the HTML file for the web app or returns book data in JSON format when requested as an API.
+ * @param {Object} e HTTP event parameters.
+ * @returns {HtmlOutput|TextOutput} The HTML output or JSON response.
  */
-function doGet() {
+function doGet(e) {
+  if (e && e.parameter && e.parameter.action === 'getBooks') {
+    try {
+      const books = getBooks();
+      return ContentService.createTextOutput(JSON.stringify(books))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch (err) {
+      return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.toString() }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   return HtmlService.createHtmlOutputFromFile('index')
     .setTitle("ARABIC Story eBook")
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
+
+/**
+ * Handles POST requests to modify the books database.
+ * @param {Object} e HTTP post event.
+ * @returns {TextOutput} JSON response containing status and updated list of books.
+ */
+function doPost(e) {
+  let responseData;
+  try {
+    const requestData = JSON.parse(e.postData.contents);
+    const action = requestData.action;
+    
+    if (action === 'addBook') {
+      const updated = addBook(requestData.book);
+      responseData = { success: true, books: updated };
+    } else if (action === 'updateBook') {
+      const updated = updateBook(requestData.book);
+      responseData = { success: true, books: updated };
+    } else if (action === 'deleteBook') {
+      const updated = deleteBook(requestData.id);
+      responseData = { success: true, books: updated };
+    } else {
+      responseData = { success: false, error: 'Unknown action: ' + action };
+    }
+  } catch (error) {
+    responseData = { success: false, error: error.toString() };
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(responseData))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 
 /**
  * Helper function to open the spreadsheet by ID.
