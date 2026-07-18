@@ -1,7 +1,7 @@
 const CACHE_NAME = 'arabic-storybook-v1';
 const ASSETS = [
-  './',
-  './index.html',
+  '/arabicstorybook/',
+  '/arabicstorybook/index.html',
   'https://cdn.tailwindcss.com'
 ];
 
@@ -36,7 +36,7 @@ self.addEventListener('fetch', (e) => {
       return cachedResponse || fetch(e.request).catch(() => {
         // Offline fallback
         if (e.request.mode === 'navigate') {
-          return caches.match('./index.html');
+          return caches.match('/arabicstorybook/index.html');
         }
       });
     })

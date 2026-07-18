@@ -2,7 +2,7 @@
   "name": "ARABIC Storybook",
   "short_name": "ArabicBook",
   "description": "ARABIC Story eBook Portal",
-  "start_url": ".",
+  "start_url": "/arabicstorybook/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#f97316",
