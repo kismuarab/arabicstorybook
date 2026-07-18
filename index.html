@@ -660,9 +660,13 @@
                          })
                          .catch(err => {
                              console.error("Error loading books from Google Sheet API:", err);
-                             showToast("เกิดข้อผิดพลาดในการโหลดข้อมูลจาก API: " + err.message, "error");
+                             let errorMsg = err.message;
+                             if (err.message === 'Failed to fetch' || err.message.includes('fetch')) {
+                                 errorMsg = "ไม่สามารถเชื่อมต่อกับ Web App API ได้ (Failed to fetch) กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต หรือตรวจสอบว่าคุณได้ตั้งค่าการ Deploy Apps Script เป็น 'Anyone' (ทุกคน) แล้วหรือยัง";
+                             }
+                             showToast("เกิดข้อผิดพลาด: " + errorMsg, "error");
                              if (settingsBookList) {
-                                 settingsBookList.innerHTML = `<div class="text-center py-8 text-red-500 font-semibold">โหลดข้อมูลล้มเหลว: ${err.message}</div>`;
+                                 settingsBookList.innerHTML = `<div class="text-center py-8 text-red-500 font-semibold">โหลดข้อมูลล้มเหลว: ${errorMsg}</div>`;
                              }
                              // Fallback to default books on API error
                              books = [...DEFAULT_BOOKS];
